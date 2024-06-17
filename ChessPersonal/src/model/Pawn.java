@@ -5,18 +5,9 @@ import java.util.ArrayList;
 public class Pawn extends CheckPos
 {
 	public static boolean move(Character pieceColor, Character pieceName, int[] start, int[] destination,
-			boolean updateSquares)
+			boolean simMove) //update squares as in get the possible move squares for the GUI, not try the move
 	{
-		CheckPos.pieceColor = pieceColor;
-		CheckPos.pieceName = pieceName;
-		CheckPos.start = start;
-		CheckPos.destination = destination;
-		
-		enemyColor = 'B';
-		if(pieceColor == 'B')
-		{
-			enemyColor = 'W';
-		}
+		setVariables(pieceColor, pieceName, start, destination);
 		
 		// need to add en passant
 		
@@ -27,13 +18,10 @@ public class Pawn extends CheckPos
 		}
 		
 		// can also return false if the destination is the own players color
-		if(!updateSquares && !checkMoveDestination() && !checkTakeDestination())
+		if(!simMove && !checkMoveDestination() && !checkTakeDestination())
 		{
 			return false;
 		}
-		
-		possibleMoves = new ArrayList<>();
-		possibleTakes = new ArrayList<>();
 		
 		/* check if moves go out of bounds and if not, add to the possible move or take lists
 		  to compare later. pawns move down for black and up for white.*/
@@ -48,18 +36,19 @@ public class Pawn extends CheckPos
 			}
 			else
 			{
-				if(start[0]+1 <= 7)
+				if(start[0] < 7)
 				{
 					possibleMoves.add(new int[]{start[0]+1, start[1]});
 				}
 			}
-			if(start[0]+1 <= 7)
+			
+			if(start[0] < 7)
 			{
-				if(start[1]+1 <= 7)
+				if(start[1] < 7)
 				{
 					possibleTakes.add(new int[]{start[0]+1, start[1]+1});
 				}
-				if(start[1]-1 >= 0)
+				if(start[1] > 0)
 				{
 					possibleTakes.add(new int[]{start[0]+1, start[1]-1});
 				}
@@ -74,25 +63,25 @@ public class Pawn extends CheckPos
 			}
 			else
 			{
-				if(start[0]-1 >= 0)
+				if(start[0] > 0)
 				{
 					possibleMoves.add(new int[]{start[0]-1, start[1]});
 				}
 			}
-			if(start[0]-1 >= 0)
+			if(start[0] > 0)
 			{
-				if(start[1]+1 <= 7)
+				if(start[1] < 7)
 				{
 					possibleTakes.add(new int[]{start[0]-1, start[1]+1});
 				}
-				if(start[1]-1 >= 0)
+				if(start[1] > 0)
 				{
 					possibleTakes.add(new int[]{start[0]-1, start[1]-1});
 				}
 			}
 		}
 		
-		if(updateSquares)
+		if(simMove)
 		{
 			return addAttackingSquares();
 		}

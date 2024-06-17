@@ -3,36 +3,21 @@ package model;
 import java.util.ArrayList;
 
 public class Knight extends CheckPos
-{
-	static ArrayList<int[]> possibleMoves;
-	static ArrayList<int[]> possibleTakes;
-	
+{	
 	public static boolean move(Character pieceColor, Character pieceName, int[] start, int[] destination,
-			boolean updateSquares)
+			boolean simMove)
 	{
-		CheckPos.pieceColor = pieceColor;
-		CheckPos.pieceName = pieceName;
-		CheckPos.start = start;
-		CheckPos.destination = destination;
-		
-		enemyColor = 'B';
-		if(pieceColor == 'B')
-		{
-			enemyColor = 'W';
-		}
+		setVariables(pieceColor, pieceName, start, destination);
 		
 		if(!checkStart())
 		{
 			return false;
 		}
 		
-		if(!updateSquares && !checkMoveDestination() && !checkTakeDestination())
+		if(!simMove && !checkMoveDestination() && !checkTakeDestination())
 		{
 			return false;
 		}
-		
-		possibleMoves = new ArrayList<>();
-		possibleTakes = new ArrayList<>();
 		
 		// up 2
 		if(start[0]-2 >= 0)
@@ -55,7 +40,7 @@ public class Knight extends CheckPos
 			checkUpDown(start, enemyColor, -2);
 		}
 		
-		if(updateSquares)
+		if(simMove)
 		{
 			return addAttackingSquares();
 		}

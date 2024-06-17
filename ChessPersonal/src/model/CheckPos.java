@@ -8,9 +8,9 @@ abstract class CheckPos {
 	static ArrayList<int[]> possibleMoves;
 	static ArrayList<int[]> possibleTakes;
 	
-	static Character pieceColor;
-	static Character enemyColor;
-	static Character pieceName;
+	static char pieceColor;
+	static char enemyColor;
+	static char pieceName;
 	
 	static int[] start;
 	static int[] destination;
@@ -134,6 +134,7 @@ abstract class CheckPos {
 			}
 		}
 		
+		// just used for displaying all of the attacked squares
 		if(pieceName != 'P')
 		{
 			for(int[] square: possibleMoves)
@@ -173,5 +174,39 @@ abstract class CheckPos {
 			return false;
 		}
 		return true;
+	}
+	
+	public ArrayList<int[]> getPossibleMoves()
+	{
+		if(possibleMoves != null)
+		{
+			return (ArrayList<int[]>) possibleMoves.clone();
+		}
+		return null;
+	}
+	public ArrayList<int[]> getPossibleTakes()
+	{
+		if(possibleTakes != null)
+		{
+			return (ArrayList<int[]>) possibleTakes.clone();
+		}
+		return null;
+	}
+	
+	public static void setVariables(char pieceColor, char pieceName, int[] start, int[] destination)
+	{
+		CheckPos.pieceColor = pieceColor;
+		CheckPos.pieceName = pieceName;
+		CheckPos.start = start;
+		CheckPos.destination = destination;
+		
+		CheckPos.possibleMoves = new ArrayList<>();
+		CheckPos.possibleTakes = new ArrayList<>();
+		
+		enemyColor = 'B';
+		if(pieceColor == 'B')
+		{
+			enemyColor = 'W';
+		}
 	}
 }

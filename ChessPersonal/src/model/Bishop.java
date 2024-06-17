@@ -8,30 +8,18 @@ public class Bishop extends CheckPos
 	static ArrayList<int[]> possibleTakes;
 	
 	public static boolean move(Character pieceColor, Character pieceName, int[] start, int[] destination,
-			int searchNum, boolean updateSquares) {
-		CheckPos.pieceColor = pieceColor;
-		CheckPos.pieceName = pieceName;
-		CheckPos.start = start;
-		CheckPos.destination = destination;
-		
-		enemyColor = 'B';
-		if(pieceColor == 'B')
-		{
-			enemyColor = 'W';
-		}
+			int searchNum, boolean simMove) {
+		setVariables(pieceColor, pieceName, start, destination);
 		
 		if(!checkStart())
 		{
 			return false;
 		}
 		
-		if(!updateSquares && !checkMoveDestination() && !checkTakeDestination())
+		if(!simMove && !checkMoveDestination() && !checkTakeDestination())
 		{
 			return false;
 		}
-		
-		possibleMoves = new ArrayList<>();
-		possibleTakes = new ArrayList<>();
 		
 		boolean canMoveNortheast = true;
 		boolean canMoveNorthwest = true;
@@ -92,7 +80,7 @@ public class Bishop extends CheckPos
 			}
 		}
 		
-		if(updateSquares)
+		if(simMove)
 		{
 			return addAttackingSquares();
 		}

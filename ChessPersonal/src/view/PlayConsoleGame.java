@@ -37,25 +37,86 @@ public class PlayConsoleGame {
 		rankPairings.put('2', 6);
 		rankPairings.put('1', 7);
 		
-		ChessBoard board = ChessBoard.getInstance();
 		System.out.println("Format: type moves in the form of [piece you want to move][start][destination]."
 				+ "\nKing = K, Queen = Q, Knight = N, Bishop = B, Rook = R, and Pawn = P."
 				+ "\nExample: if white wants to movie their pawn from d2 to d4 they would type \"Pd2d4\"."
-				+ "\nThe pieces must be capital and the files must be lowercase.\n");
+				+ "\nThe pieces must be capital and the files must be lowercase."
+				+ "\nType 'END' to conciede.\n");
 		// potentially allow chess notation and to not need to specify start square
 		
-		boolean isCheckmate = false;
-		String curPlayer = "White";
-		Character pieceColor = curPlayer.charAt(0);
 		
+		
+		//load game one away from checkmate
+		
+		/*
+		String[][] newBoard = {{"BR", "BN", "BB", "BQ", "BK", "BB", "BN", "BR"},
+							   {"", "BP", "BP", "BP", "BP", "BP", "BP", "BP"},
+							   {"", "", "", "", "", "", "", ""},
+							   {"", "", "", "", "", "", "", ""},
+							   {"", "", "WB", "", "WP", "", "", ""},
+							   {"BP", "", "", "", "", "WQ", "", ""},
+							   {"WP", "WP", "WP", "WP", "", "WP", "WP", "WP"},
+							   {"WR", "WN", "WB", "", "WK", "", "WN", "WR"}};
+		board.loadBoard(newBoard, "White");
+		*/
+		
+		ChessBoard board = ChessBoard.getInstance();
 		Scanner input = new Scanner(System.in);
+		
+		playGame(board, input);
+		
+		while(true)
+		{
+			System.out.println("Play again? (Y/N)");
+			String ans = input.nextLine();
+			if(ans.equals("Y"))
+			{
+				board.setupBoard();
+				playGame(board, input);
+			}
+			else
+			{
+				input.close();
+				System. exit(0);
+			}
+		}
+        
+		
+		//not sure what this is for but i will keep here just in case
+		/*
+		board.updateSquares();
+		if(board.checkIfCheck(board.getCurColor()))
+		{
+			board.checkIfCheckMate(board.getCurColor());
+		}
+		
+        board.setupBoard();
+		board.printBoard();
+		*/
+	}
+
+	public static void playGame(ChessBoard board, Scanner input)
+	{
+		boolean isCheckmate = false;
 		
 		while(!isCheckmate)
 		{
+			System.out.println();
 			board.printBoard();
-			System.out.println("\n" + curPlayer + " to move:");
+			System.out.println("\n" + board.getCurPlayer() + " to move:");
 			
 	        String move = input.nextLine();
+	        
+	        if(move.equals("END"))
+	        {
+	        	String enemyPlayer = "White";
+	        	if (board.getCurPlayer() == "White")
+	        	{
+	        		enemyPlayer = "Black";
+	        	}
+	        	System.out.println(board.getCurPlayer() + " Concieded the game. " +enemyPlayer + " wins!");
+	        	break;
+	        }
 	        
 	        // check if the piece and files are letters
 	        if(move.length() != 5)
@@ -105,88 +166,24 @@ public class PlayConsoleGame {
         	int destRow = rankPairings.get(move.charAt(4));
         	
         	Character pieceName = move.charAt(0);
-        	pieceColor = curPlayer.charAt(0);
+        	
         	int[] start = {startRow, startCol};
         	int[] destination = {destRow, destCol};
         	
-        	if(pieceName == 'P')
+        	if(pieceName != 'K' && pieceName != 'Q' && pieceName != 'N' && 
+        			pieceName != 'B' && pieceName != 'R' && pieceName != 'P')
         	{
-        		if(!Pawn.move(pieceColor, pieceName, start, destination, false))
-        		{
-        			System.out.println("Invalid move");
-        			continue;
-        		}
-	        }
-        	else if(pieceName == 'R')
-        	{
-        		if(!Rook.move(pieceColor, pieceName, start, destination, 7, false))
-        		{
-        			System.out.println("Invalid move");
-        			continue;
-        		}
-        	}
-        	else if(pieceName == 'N')
-        	{
-        		if(!Knight.move(pieceColor, pieceName, start, destination, false))
-        		{
-        			System.out.println("Invalid move");
-        			continue;
-        		}
-	        }
-        	else if(pieceName == 'B')
-        	{
-        		if(!Bishop.move(pieceColor, pieceName, start, destination, 7, false))
-        		{
-        			System.out.println("Invalid move");
-        			continue;
-        		}
-        	}
-        	else if(pieceName == 'K')
-        	{
-        		/* King also moves in all directions, but pass in 1 to specify it can only move 1.
-        		   Also use the 1 to check if it can castle and move near the enemy king */
-        		if(!King.move(pieceColor, pieceName, start, destination))
-        		{
-        			System.out.println("Invalid move");
-        			continue;
-        		}
-	        }
-        	else if(pieceName == 'Q')
-        	{
-        		// can use the rook and bishop class because queen has both abilities combined
-        		if(!Rook.move(pieceColor, pieceName, start, destination, 7, false) 
-        				&& !Bishop.move(pieceColor, pieceName, start, destination, 7, false))
-        		{
-        			System.out.println("Invalid move");
-        			continue;
-        		}
+        		System.out.println("Incorrect input format: piece letter is incorrect");
+        		continue;
         	}
         	else
         	{
-        		System.out.println("Incorrect input format: piece letter is incorrect");
-	        	continue;
+        		if(board.tryMove(pieceName, start, destination, false) == null)
+        		{
+        			System.out.println("Invalid move");
+        			continue;
+        		}
         	}
-	        
-			if(curPlayer.equals("White"))
-			{
-				curPlayer = "Black";
-			}
-			else
-			{
-				curPlayer = "White";
-			}
 		}
-		
-		input.close();
-        
-		board.updateSquares();
-		if(board.checkIfCheck(pieceColor))
-		{
-			board.checkIfCheckMate(pieceColor);
-			System.out.println();
-		}
-		
-        board.setupBoard();
-		board.printBoard();
 	}
 }

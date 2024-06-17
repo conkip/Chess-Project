@@ -2,10 +2,14 @@ package model;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 
 public class ChessBoard {
 	private static ChessBoard instance;
 	private static String[][] board;
+	
+	private static String curPlayer;
+	private static char curColor;
 	
 	// lists to keep track of taken pieces
 	private ArrayList<String> takenWhitePieces;
@@ -14,6 +18,8 @@ public class ChessBoard {
 	// lists to track squares that white and black pieces are attacking
 	private ArrayList<int[]> whiteAttackedSquares;
 	private ArrayList<int[]> blackAttackedSquares;
+	
+	public static HashMap<String, String> pieceSymbols;
 	
 	// singleton design pattern to allow only one shared instance of the board
 	public synchronized static ChessBoard getInstance() {
@@ -27,13 +33,25 @@ public class ChessBoard {
 	// private constructor so other classes don't use it
 	private ChessBoard() {
 		board = new String[8][8];
+		
+		//Font big = new Font("serif", Font.PLAIN, 20);
+		
+		pieceSymbols = new HashMap<>();
+		pieceSymbols.put("BR", "♜   ");
+		pieceSymbols.put("BN", "♞   ");
+		pieceSymbols.put("BB", "♝   ");
+		pieceSymbols.put("BK", "♚   ");
+		pieceSymbols.put("BQ", "♛   ");
+		pieceSymbols.put("BP", "♟ ");
+		
+		pieceSymbols.put("WR", "♖   ");
+		pieceSymbols.put("WN", "♘   ");
+		pieceSymbols.put("WB", "♗   ");
+		pieceSymbols.put("WK", "♔   ");
+		pieceSymbols.put("WQ", "♕   ");
+		pieceSymbols.put("WP", "♙   ");
+		
 		setupBoard();
-		
-		takenWhitePieces = new ArrayList<>();
-		takenBlackPieces = new ArrayList<>();
-		
-		whiteAttackedSquares = new ArrayList<>();
-		blackAttackedSquares = new ArrayList<>();
 	}
 	
 	/**
@@ -42,6 +60,15 @@ public class ChessBoard {
 	 */
 	public void setupBoard()
 	{
+		curPlayer = "White";
+		curColor = curPlayer.charAt(0);
+		
+		takenWhitePieces = new ArrayList<>();
+		takenBlackPieces = new ArrayList<>();
+		
+		whiteAttackedSquares = new ArrayList<>();
+		blackAttackedSquares = new ArrayList<>();
+		
 		for(int row = 0; row < 8; row++) // rank
 		{
 			for(int col = 0; col < 8; col++) // file
@@ -77,15 +104,25 @@ public class ChessBoard {
 					}
 					else if(col == 3)
 					{
-						board[row][col] += "K"; // king
+						board[row][col] += "Q"; // king
 					}
 					else if(col == 4)
 					{
-						board[row][col] += "Q"; // queen
+						board[row][col] += "K"; // queen
 					}
 				}
 			}
 		}
+	}
+	
+	/**
+	 * loads a pre-set board given a 2-d array in the same way the board is set up
+	 */
+	public void loadBoard(String[][] newBoard, String newPlayer)
+	{
+		board = newBoard;
+		curPlayer = newPlayer;
+		curColor = curPlayer.charAt(0);
 	}
 	
 	/**
@@ -106,13 +143,25 @@ public class ChessBoard {
 				}
 				else
 				{
-					System.out.print(board[row][col] + " | ");
+					System.out.print(pieceSymbols.get(board[row][col]) + " | ");
 				}
 			}
 			System.out.println(8-row);
 			System.out.println("  |____|____|____|____|____|____|____|____|");
 		}
 		System.out.println("\n    a    b    c    d    e    f    g    h");
+		
+		System.out.println("\nTaken White Pieces:");
+		for(String piece: takenWhitePieces)
+		{
+			System.out.print(pieceSymbols.get(piece) + " ");
+		}
+		
+		System.out.println("\nTaken Black Pieces:");
+		for(String piece: takenBlackPieces)
+		{
+			System.out.print(pieceSymbols.get(piece) + " ");
+		}
 	}
 	
 	/**
@@ -120,7 +169,7 @@ public class ChessBoard {
 	 */
 	public void printBoardReverse()
 	{
-		// add later possibly
+		// add later possibly, but probably not because the main part is the GUI
 	}
 	
 	/**
@@ -172,16 +221,16 @@ public class ChessBoard {
 	 */
 	public void updateSquares()
 	{
-		takenWhitePieces.clear();
-		takenBlackPieces.clear();
+		whiteAttackedSquares.clear();
+		blackAttackedSquares.clear();
 		
 		for(int row = 0; row <= 7; row++)
 		{
 			for(int col = 0; col <= 7; col++)
 			{
 				String piece = board[row][col];
-				Character pieceColor = piece.charAt(0);
-				Character pieceName = piece.charAt(1);
+				char pieceColor = piece.charAt(0);
+				char pieceName = piece.charAt(1);
 				int[] start = new int[] {row, col};
 				
 				if(piece.equals(""))
@@ -241,7 +290,7 @@ public class ChessBoard {
 	 * @param pieceColor: character color of the king, W or B
 	 * @return true if the king is in check
 	 */
-	public boolean checkIfCheck(Character pieceColor)
+	public boolean checkIfCheck(char pieceColor)
 	{
 		for(int row = 0; row <= 7; row++)
 		{
@@ -276,7 +325,7 @@ public class ChessBoard {
 	 * @param pieceColor: character color of the king, W or B
 	 * @return true if the king in checkmate
 	 */
-	public boolean checkIfCheckMate(Character pieceColor)
+	public boolean checkIfCheckMate(char pieceColor)
 	{
 		/*
 		 * need to add way to check if a piece can block check.
@@ -379,26 +428,189 @@ public class ChessBoard {
 	
 	public ArrayList<String> getTakenWhitePieces()
 	{
-		return takenWhitePieces;
+		if(takenWhitePieces != null)
+		{
+			return (ArrayList<String>) takenWhitePieces.clone();
+		}
+		return null;
 	}
 	
 	public ArrayList<String> getTakenBlackPieces()
 	{
-		return takenBlackPieces;
+		if(takenBlackPieces != null)
+		{
+			return (ArrayList<String>) takenBlackPieces.clone();
+		}
+		return null;
 	}
 	
 	public ArrayList<int[]> getWhiteAttackedSquares()
 	{
-		return whiteAttackedSquares;
+		if(whiteAttackedSquares != null)
+		{
+			return (ArrayList<int[]>) whiteAttackedSquares.clone();
+		}
+		return null;
 	}
 	
 	public ArrayList<int[]> getBlackAttackedSquares()
 	{
-		return blackAttackedSquares;
+		if(blackAttackedSquares != null)
+		{
+			return (ArrayList<int[]>) blackAttackedSquares.clone();
+		}
+		return null;
+	}
+	
+	public String getCurPlayer()
+	{
+		return curPlayer;
+	}
+	
+	public char getCurColor()
+	{
+		return curColor;
+	}
+	
+	public void setCurPlayer(String newPlayer)
+	{
+		curPlayer = newPlayer;
+		curColor = newPlayer.charAt(0);
 	}
 	
 	public String[][] getBoard()
 	{
 		return board.clone();
+	}
+	
+	/*
+	 * helper function to add to the possible takes to the move list for the GUI board to show green
+	 */
+	private void addTakesToMoves(ArrayList<int[]> moves, ArrayList<int[]> takes)
+	{
+		if(takes != null)
+		{
+			for(int[] take: takes)
+			{
+				if(board[take[0]][take[1]].equals("") || board[take[0]][take[1]].charAt(0) != curColor)
+				{
+					moves.add(take);
+				}
+			}
+		}
+	}
+	
+	
+	public ArrayList<int[]> tryMove(char pieceName, int[] start, int[] destination, boolean simMove)
+	{
+		ArrayList<int[]> moves = null;
+		ArrayList<int[]> takes = null;
+		boolean isValid = false;
+		
+		if(pieceName == 'P')
+    	{
+			Pawn tempPawn = new Pawn();
+			
+			isValid = tempPawn.move(curColor, pieceName, start, destination, simMove);
+			moves = tempPawn.getPossibleMoves();
+			takes = tempPawn.getPossibleTakes();
+			
+			if(takes != null)
+			{
+				for(int[] take: takes)
+				{
+					String pieceToTake = board[take[0]][take[1]];
+					if(!pieceToTake.equals("") && pieceToTake.charAt(0) != curColor)
+					{
+						moves.add(take);
+					}
+				}
+			}
+        }
+    	else if(pieceName == 'R')
+    	{
+    		Rook tempRook = new Rook();
+    		
+    		isValid = tempRook.move(curColor, pieceName, start, destination, 7, simMove);
+    		moves = tempRook.getPossibleMoves();
+			takes = tempRook.getPossibleTakes();
+			
+			addTakesToMoves(moves, takes);
+    	}
+    	else if(pieceName == 'N')
+    	{
+    		Knight tempKnight = new Knight();
+    		
+    		isValid = !tempKnight.move(curColor, pieceName, start, destination, simMove);
+    		moves = tempKnight.getPossibleMoves();
+    		takes = tempKnight.getPossibleTakes();
+    		
+    		addTakesToMoves(moves, takes);
+        }
+    	else if(pieceName == 'B')
+    	{
+    		Bishop tempBishop = new Bishop();
+    		
+    		isValid = !tempBishop.move(curColor, pieceName, start, destination, 7, simMove);
+    		moves = tempBishop.getPossibleMoves();
+    		takes = tempBishop.getPossibleTakes();
+    		
+    		addTakesToMoves(moves, takes);
+    	}
+    	else if(pieceName == 'K')
+    	{
+    		King tempKing = new King();
+    		
+    		/* King also moves in all directions, but pass in 1 to specify it can only move 1.
+    		   Also use the 1 to check if it can castle and move near the enemy king */
+    		isValid = tempKing.move(curColor, pieceName, start, destination, simMove);
+    		moves = tempKing.getPossibleMoves();
+    		takes = tempKing.getPossibleTakes();
+    		
+			addTakesToMoves(moves, takes);
+        }
+    	else if(pieceName == 'Q')
+    	{
+    		Rook tempRook = new Rook();
+    		// can use the rook and bishop class because queen has both abilities combined
+    		
+    		boolean isValidR = tempRook.move(curColor, pieceName, start, destination, 7, false);
+    		moves = tempRook.getPossibleMoves();
+			takes = tempRook.getPossibleTakes();
+			
+			addTakesToMoves(moves, takes);
+			
+			Bishop tempBishop = new Bishop();
+    		
+    		boolean isValidB = tempBishop.move(curColor, pieceName, start, destination, 7, false);
+    		
+    		if(tempBishop.getPossibleMoves() != null)
+    		{
+    			moves.addAll(tempBishop.getPossibleMoves());
+    		}
+    		
+    		addTakesToMoves(moves, takes);
+			
+    		if(!isValidR || !isValidB || simMove)
+    		{
+    			return moves;
+    		}   		
+    	}
+		
+		if(!isValid || simMove)
+		{
+			return moves;
+		}
+        
+		if(curPlayer.equals("White"))
+		{
+			setCurPlayer("Black");
+		}
+		else
+		{
+			setCurPlayer("White");
+		}
+		
+		return moves;
 	}
 }
