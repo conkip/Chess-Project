@@ -9,11 +9,6 @@ public class Knight extends CheckPos
 	{
 		setVariables(pieceColor, pieceName, start, destination);
 		
-		if(!checkStart())
-		{
-			return false;
-		}
-		
 		if(!simMove && !checkMoveDestination() && !checkTakeDestination())
 		{
 			return false;

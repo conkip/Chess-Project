@@ -28,6 +28,8 @@ public class PlayGUIGame extends Application
 	private char startPiece;
 	private ArrayList<int[]> startMoves;
 	
+	private boolean showPossibleMoves;
+	
 	private int SIZE = 70;
 	
 	public static void main(String[] args) {
@@ -45,6 +47,8 @@ public class PlayGUIGame extends Application
 	 * Where every element of the stage is initialized
 	 */
 	public void setUpStage() {
+		
+		showPossibleMoves = true;
 
 		// Instantiates the different Panes and Scenes to be used
 		primaryPane = new BorderPane();
@@ -101,13 +105,28 @@ public class PlayGUIGame extends Application
 								startPiece = pieceName.charAt(1);
 								curSquare.setBackgroundColor("Red");
 								
-								startMoves = board.tryMove(startPiece, start, start, true);
-								
-								if(startMoves != null)
+								if(showPossibleMoves)
 								{
-									for(int[] square: startMoves)
+									if(board.checkIfCheck(board.getCurColor()))
 									{
-										bg.getSquares()[square[0]][square[1]].setBackgroundColor("Green");
+										if(board.checkIfCheckMate(board.getCurColor()))
+										{
+											System.out.println(board.getCurPlayer() + " lost by checkmate!");
+											System.exit(1);
+										}
+										if(startPiece != 'K')
+										{
+											return;
+										}
+									}
+									
+									startMoves = board.tryMove(startPiece, start, start, true, false);
+									if(startMoves != null)
+									{
+										for(int[] square: startMoves)
+										{
+											bg.getSquares()[square[0]][square[1]].setBackgroundColor("Green");
+										}
 									}
 								}
 							}
@@ -115,13 +134,15 @@ public class PlayGUIGame extends Application
 						else
 						{
 							//passes in destination as second argument
-							board.tryMove(startPiece, start, new int[] {row, col}, false);
-							
-							if(startMoves != null)
+							board.tryMove(startPiece, start, new int[] {row, col}, false, false);
+							if(showPossibleMoves)
 							{
-								for(int[] square: startMoves)
+								if(startMoves != null)
 								{
-									bg.getSquares()[square[0]][square[1]].setOGColor();
+									for(int[] square: startMoves)
+									{
+										bg.getSquares()[square[0]][square[1]].setOGColor();
+									}
 								}
 							}
 							
@@ -164,8 +185,6 @@ public class PlayGUIGame extends Application
 					sqr.setImage(piece);
 					return;
 				}
-				takenPs.getSpaces()[row][col].setImage(piece);
-				
 			}
 		}
 	}

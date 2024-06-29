@@ -11,11 +11,6 @@ public class Rook extends CheckPos
 			int searchNum, boolean simMove) {
 		setVariables(pieceColor, pieceName, start, destination);
 		
-		if(!checkStart())
-		{
-			return false;
-		}
-		
 		if(!simMove && !checkMoveDestination() && !checkTakeDestination())
 		{
 			return false;

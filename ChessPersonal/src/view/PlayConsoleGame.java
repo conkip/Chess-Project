@@ -3,16 +3,12 @@ package view;
 import java.util.HashMap;
 import java.util.Scanner;
 
-import model.Bishop;
 import model.ChessBoard;
-import model.King;
-import model.Knight;
-import model.Pawn;
-import model.Rook;
 
 public class PlayConsoleGame {
 	public static HashMap<Character, Integer> filePairings;
 	public static HashMap<Character, Integer> rankPairings;
+	private static HashMap<String, String> pieceSymbols;
 	
 	public static void main(String[] args)
 	{
@@ -36,6 +32,21 @@ public class PlayConsoleGame {
 		rankPairings.put('3', 5);
 		rankPairings.put('2', 6);
 		rankPairings.put('1', 7);
+		
+		pieceSymbols = new HashMap<>();
+		pieceSymbols.put("BR", "♜   ");
+		pieceSymbols.put("BN", "♞   ");
+		pieceSymbols.put("BB", "♝   ");
+		pieceSymbols.put("BK", "♚   ");
+		pieceSymbols.put("BQ", "♛   ");
+		pieceSymbols.put("BP", "♟ ");
+		
+		pieceSymbols.put("WR", "♖   ");
+		pieceSymbols.put("WN", "♘   ");
+		pieceSymbols.put("WB", "♗   ");
+		pieceSymbols.put("WK", "♔   ");
+		pieceSymbols.put("WQ", "♕   ");
+		pieceSymbols.put("WP", "♙   ");
 		
 		System.out.println("Format: type moves in the form of [piece you want to move][start][destination]."
 				+ "\nKing = K, Queen = Q, Knight = N, Bishop = B, Rook = R, and Pawn = P."
@@ -80,19 +91,6 @@ public class PlayConsoleGame {
 				System. exit(0);
 			}
 		}
-        
-		
-		//not sure what this is for but i will keep here just in case
-		/*
-		board.updateSquares();
-		if(board.checkIfCheck(board.getCurColor()))
-		{
-			board.checkIfCheckMate(board.getCurColor());
-		}
-		
-        board.setupBoard();
-		board.printBoard();
-		*/
 	}
 
 	public static void playGame(ChessBoard board, Scanner input)
@@ -102,7 +100,7 @@ public class PlayConsoleGame {
 		while(!isCheckmate)
 		{
 			System.out.println();
-			board.printBoard();
+			printBoard(board);
 			System.out.println("\n" + board.getCurPlayer() + " to move:");
 			
 	        String move = input.nextLine();
@@ -124,14 +122,14 @@ public class PlayConsoleGame {
 	        	System.out.println("Incorrect input format: length should be 5");
 	        	continue;
 	        }
-	        else if(!Character.isLetter(move.charAt(0)) || !Character.isLetter(move.charAt(1)) 
+	        if(!Character.isLetter(move.charAt(0)) || !Character.isLetter(move.charAt(1)) 
 	        		|| !Character.isLetter(move.charAt(3)))
 	        {
 	        	System.out.println("Incorrect input format: 1st, 2nd, and 3rd characters should be letters");
 	        	continue;
 	        }
 	        // check if ranks are integers
-	        else if(!Character.isDigit(move.charAt(2)) || !Character.isDigit(move.charAt(4)))
+	        if(!Character.isDigit(move.charAt(2)) || !Character.isDigit(move.charAt(4)))
 	        {
 	        	System.out.println("Incorrect input format: 3rd and 5th characters should be integers");
 	        	continue;
@@ -178,12 +176,79 @@ public class PlayConsoleGame {
         	}
         	else
         	{
-        		if(board.tryMove(pieceName, start, destination, false) == null)
+        		//check the start location
+        		String piece = board.getPiece(start[0], start[1]);
+        		
+        		if(piece == "")
+        		{
+        			System.out.println("Invalid move: Start location has no piece");
+        			continue;
+        		}
+        		if(piece.charAt(0) != board.getCurColor())
+        		{
+        			System.out.println("Invalid move: Start piece is the wrong color");
+        			continue;
+        		}
+        		if(piece.charAt(1) != pieceName)
+        		{
+        			System.out.println("Invalid move: Start location does not match the start piece");
+        			continue;
+        		}
+        		
+        		if(board.tryMove(pieceName, start, destination, false, false) == null)
         		{
         			System.out.println("Invalid move");
-        			continue;
         		}
         	}
 		}
+	}
+	
+	/**
+	 * prints the board to the console.
+	 */
+	public static void printBoard(ChessBoard board)
+	{
+		String[][] boardArr = board.getBoard();
+		
+		System.out.println("    a    b    c    d    e    f    g    h");
+		System.out.println("   _______________________________________");
+		for(int row = 0; row < 8; row++) // rank
+		{
+			System.out.print(8-row + " | ");
+			for(int col = 0; col < 8; col++) // file
+			{
+				if(boardArr[row][col].equals(""))
+				{
+					System.out.print("   | ");
+				}
+				else
+				{
+					System.out.print(pieceSymbols.get(boardArr[row][col]) + " | ");
+				}
+			}
+			System.out.println(8-row);
+			System.out.println("  |____|____|____|____|____|____|____|____|");
+		}
+		System.out.println("\n    a    b    c    d    e    f    g    h");
+		
+		System.out.println("\nTaken White Pieces:");
+		for(String piece: board.getTakenWhitePieces())
+		{
+			System.out.print(pieceSymbols.get(piece) + " ");
+		}
+		
+		System.out.println("\nTaken Black Pieces:");
+		for(String piece: board.getTakenBlackPieces())
+		{
+			System.out.print(pieceSymbols.get(piece) + " ");
+		}
+	}
+	
+	/**
+	 * prints the board from the black perspective.
+	 */
+	public void printBoardReverse()
+	{
+		// add later possibly, but probably not because the main part is the GUI
 	}
 }

@@ -4,7 +4,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 public class TakenPiecesVBox extends VBox{
-	private static Square[][] spaces = new Square[8][2];
+	private Square[][] spaces = new Square[8][2];
 	
 	public TakenPiecesVBox()
 	{

@@ -15,34 +15,26 @@ abstract class CheckPos {
 	static int[] start;
 	static int[] destination;
 	
-	/**
-	 * checks to see if the start square location piece matches the piece to move
-	 * @return true if the start square is valid
-	 */
-	public static boolean checkStart()
+	public static void setVariables(char pieceColor, char pieceName, int[] start, int[] destination)
 	{
-		String piece = board.getPiece(start[0], start[1]);
+		CheckPos.pieceColor = pieceColor;
+		CheckPos.pieceName = pieceName;
+		CheckPos.start = start;
+		CheckPos.destination = destination;
 		
-		// if it is an empty space can automatically invalidate
-		if(piece == "")
-		{
-			return false;
-		}
-		if(piece.charAt(0) != pieceColor)
-		{
-			return false;
-		}
-		if(piece.charAt(1) != pieceName)
-		{
-			return false;
-		}
+		CheckPos.possibleMoves = new ArrayList<>();
+		CheckPos.possibleTakes = new ArrayList<>();
 		
-		return true;
+		enemyColor = 'B';
+		if(pieceColor == 'B')
+		{
+			enemyColor = 'W';
+		}
 	}
 	
 	/**
-	 * checks to see if the destination square is empty to move to
-	 * @return true if the destination square is empty
+	 * checks to see if the destination square is empty to move to or take
+	 * @return true if the destination square is valid
 	 */
 	public static boolean checkMoveDestination()
 	{
@@ -58,7 +50,7 @@ abstract class CheckPos {
 	}
 	
 	/**
-	 * Checks to see if the destination square is an enemy piece so it can take
+	 * checks to see if the destination square is empty to move to or take
 	 * @return true if the destination square is valid
 	 */
 	public static boolean checkTakeDestination()
@@ -85,6 +77,15 @@ abstract class CheckPos {
 		{
 			if(Arrays.equals(square, destination))
 			{
+				if(pieceName == 'P')
+				{
+					String piece = board.getPiece(destination[0], destination[1]);
+					if(!piece.equals(""))
+					{
+						return false;
+					}
+				}
+				
 				if(!checkMoveDestination())
 				{
 					return false;
@@ -191,22 +192,5 @@ abstract class CheckPos {
 			return (ArrayList<int[]>) possibleTakes.clone();
 		}
 		return null;
-	}
-	
-	public static void setVariables(char pieceColor, char pieceName, int[] start, int[] destination)
-	{
-		CheckPos.pieceColor = pieceColor;
-		CheckPos.pieceName = pieceName;
-		CheckPos.start = start;
-		CheckPos.destination = destination;
-		
-		CheckPos.possibleMoves = new ArrayList<>();
-		CheckPos.possibleTakes = new ArrayList<>();
-		
-		enemyColor = 'B';
-		if(pieceColor == 'B')
-		{
-			enemyColor = 'W';
-		}
 	}
 }
